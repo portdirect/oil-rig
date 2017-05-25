@@ -28,7 +28,7 @@ function warn {
 
 function set_defaults {
     PREFIX=
-    NAMESPACE=gantry
+    NAMESPACE=oilrig
 }
 
 function has_changed {
