@@ -1,0 +1,21 @@
+[Unit]
+Description=OilRig Drill Service
+After=docker.service
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+ExecStartPre=/usr/bin/docker rm -f oilrig-drill
+ExecStart=/usr/bin/docker run -d \
+      --name oilrig-drill \
+      --privileged \
+      --volume /var/lib/docker-oilrig:/var/lib/docker:rshared \
+      --volume /var/log/oilrig/supervisor:/var/log/oilrig/supervisor:rw \
+      --volume /:/rootfs:rshared \
+      docker.io/oilrig/pipe:latest
+ExecStop/usr/bin/docker rm -f oilrig-drill
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
