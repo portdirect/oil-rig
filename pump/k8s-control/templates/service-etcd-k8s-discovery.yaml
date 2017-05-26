@@ -1,0 +1,27 @@
+{{- $tenant := .Values.tenant -}}
+{{- $cluster := .Values.cluster -}}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.etcd.service_name }}-discovery
+  labels:
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
+    tier: pump-control-plane
+    component: k8s-etcd
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  clusterIP: None
+  selector:
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
+    tier: pump-control-plane
+    component: k8s-etcd
+  ports:
+    - name: etcd-client
+      port: 2379
+    - name: etcd-server
+      port: 2380

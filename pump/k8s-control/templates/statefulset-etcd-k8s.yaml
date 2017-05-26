@@ -1,0 +1,72 @@
+{{- $tenant := .Values.tenant -}}
+{{- $cluster := .Values.cluster -}}
+{{- $service_name := .Values.etcd.service_name -}}
+{{- $service := (print $service_name "-discovery." .Release.Namespace ".svc.cluster.local") -}}
+{{- $replicas := .Values.etcd.replicas -}}
+
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ $service_name }}
+  labels:
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
+    tier: pump-control-plane
+    component: k8s-etcd
+spec:
+  serviceName: {{ $service_name }}-discovery
+  replicas: {{ .Values.etcd.replicas }}
+  template:
+    metadata:
+      labels:
+        tenant: {{ $tenant }}
+        cluster: {{ $cluster }}
+        tier: pump-control-plane
+        component: k8s-etcd
+    spec:
+      nodeSelector:
+        tenant: {{ $tenant }}
+        cluster: {{ $cluster }}
+        nodeType: k8s-control-plane
+      containers:
+        - name: etcd
+          image: {{ .Values.etcd.image }}
+          imagePullPolicy: {{ .Values.etcd.image_pull_policy }}
+          env:
+            - name: ETCD_ADVERTISE_CLIENT_URLS
+              value: http://{{ $service_name }}.{{ .Release.Namespace }}.svc.cluster.local:2379
+            - name: ETCD_DATA_DIR
+              value: /var/oilrig/pump/etcd/k8s
+            - name: ETCD_INITIAL_ADVERTISE_PEER_URLS
+              value: {{ range $i, $e := until ($replicas | int) -}}
+{{- if $i -}},{{- end -}}
+{{- print "k8s-etcd-" $i "=http://k8s-etcd-" $i "." $service ":2380" -}}
+{{- end }}
+            - name: ETCD_INITIAL_CLUSTER
+              value: {{ range $i, $e := until ($replicas | int) -}}
+{{- if $i -}},{{- end -}}
+{{- print "k8s-etcd-" $i "=http://k8s-etcd-" $i "." $service ":2380" -}}
+{{- end }}
+            - name: ETCD_INITIAL_CLUSTER_TOKEN
+              value: "{{ $tenant }}-{{ $cluster }}-k8s-etcd"
+            - name: ETCD_LISTEN_CLIENT_URLS
+              value: http://0.0.0.0:2379
+            - name: ETCD_LISTEN_PEER_URLS
+              value: http://0.0.0.0:2380
+            - name: ETCD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: client
+              containerPort: 2379
+            - name: peer
+              containerPort: 2380
+          volumeMounts:
+            - name: data
+              mountPath: /var/oilrig/pump/etcd/k8s
+      volumes:
+        - name: data
+          hostPath:
+            path: /var/oilrig/pump/{{ $tenant }}/{{ $cluster }}/etcd/k8s
