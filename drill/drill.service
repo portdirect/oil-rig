@@ -5,15 +5,15 @@ Requires=docker.service
 Wants=network-online.target
 
 [Service]
-ExecStartPre=/usr/bin/docker rm -f oilrig-drill
-ExecStart=/usr/bin/docker run -d \
+ExecStartPre=/bin/bash -c "/usr/bin/docker rm -fv oilrig-drill || true"
+ExecStart=/usr/bin/docker run --rm \
       --name oilrig-drill \
       --privileged \
       --volume /var/lib/docker-oilrig:/var/lib/docker:rshared \
       --volume /var/log/oilrig/supervisor:/var/log/oilrig/supervisor:rw \
       --volume /:/rootfs:rshared \
       docker.io/oilrig/pipe:latest
-ExecStop/usr/bin/docker rm -f oilrig-drill
+ExecStop=/bin/bash -c "/usr/bin/docker rm -fv oilrig-drill || true"
 Restart=always
 RestartSec=10
 
