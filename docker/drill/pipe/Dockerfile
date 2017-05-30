@@ -13,9 +13,9 @@ RUN set -x \
 # Get Supervisord
     && pip --no-cache-dir install supervisor \
     && pip --no-cache-dir install supervisor-stdout \
-# Get Docker Compose
-    && curl -ssL -o /usr/bin/docker-compose https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-x86_64 \
-    && chmod +x /usr/bin/docker-compose
+# Get Kubelet
+    && curl -sL -o /usr/local/bin/kubelet http://storage.googleapis.com/kubernetes-release/release/v1.6.2/bin/linux/amd64/kubelet \
+    && chmod +x /usr/local/bin/kubelet
 
 RUN set -x \
     && apt-get update \

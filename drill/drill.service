@@ -8,7 +8,9 @@ Wants=network-online.target
 ExecStartPre=/bin/bash -c "/usr/bin/docker rm -fv oilrig-drill || true"
 ExecStart=/usr/bin/docker run --rm \
       --name oilrig-drill \
+      --network host \
       --privileged \
+      --volume /etc/oilrig/drill/kubernetes:/etc/kubernetes \
       --volume /var/lib/docker-oilrig:/var/lib/docker:rshared \
       --volume /var/log/oilrig/supervisor:/var/log/oilrig/supervisor:rw \
       --volume /:/rootfs:rshared \

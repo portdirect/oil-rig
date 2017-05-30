@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: k8s-etcd
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+    - name: k8s-etcd
+      #image: gcr.io/google_containers/etcd-amd64:3.0.17
+      image: quay.io/coreos/etcd:v3.0.17
+#      image: quay.io/coreos/etcd:v3.1.8
+      env:
+        - name: ETCD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: ETCD_DATA_DIR
+          value: /var/lib/etcd
+        - name: ETCD_ADVERTISE_CLIENT_URLS
+          value: http://192.168.77.10:12379,http://192.168.77.11:12379,http://192.168.77.12:12379
+        - name: ETCD_INITIAL_ADVERTISE_PEER_URLS
+          value: http://$(ETCD_NAME):12380
+        - name: ETCD_INITIAL_CLUSTER
+          value: 192.168.77.10=http://192.168.77.10:12380,192.168.77.11=http://192.168.77.11:12380,192.168.77.12=http://192.168.77.12:12380
+        - name: ETCD_INITIAL_CLUSTER_TOKEN
+          value: drill-baby-drill
+        - name: ETCD_LISTEN_CLIENT_URLS
+          value: http://$(ETCD_NAME):12379
+        - name: ETCD_LISTEN_PEER_URLS
+          value: http://$(ETCD_NAME):12380
+      ports:
+        - name: client
+          containerPort: 12379
+        - name: peer
+          containerPort: 12380
+      volumeMounts:
+        - name: data
+          mountPath: /var/lib/etcd
+  volumes:
+    - name: data
+      hostPath:
+        path: /var/oilrig/drill/k8s-etcd

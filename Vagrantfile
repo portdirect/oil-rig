@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
   }
 
   drill_worker_config = {
-    count: 4,
+    count: 0,
     name_prefix: "w",
     start_ip: 20,
   }
@@ -81,9 +81,16 @@ EOS
         c.vm.hostname = m[:hostname]
         c.vm.network "private_network", ip: m[:ip]
         c.vm.provision :shell, privileged: true, inline:<<EOS
+set -ex
+
 if [ -f /vagrant/pipe.tar ]; then
   docker load -i /vagrant/pipe.tar
 fi
+
+modprobe nf_nat xt_conntrack
+
+mkdir -p /etc/oilrig/drill/
+rsync -r /vagrant/test-assets/ /etc/oilrig/drill/kubernetes/
 
 ln -s /vagrant/drill/drill.service /etc/systemd/system/drill.service
 systemctl daemon-reload
