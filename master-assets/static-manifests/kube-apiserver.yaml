@@ -28,7 +28,7 @@ spec:
 #        - --insecure-port=10080
         - --secure-port=10443
         - --service-cluster-ip-range=10.96.0.0/12
-        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+#        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
 #        - --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
 #        - --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
         - --service-account-key-file=/etc/kubernetes/pki/sa.pub

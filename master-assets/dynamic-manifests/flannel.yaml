@@ -96,7 +96,10 @@ spec:
       containers:
       - name: kube-flannel
         image: quay.io/coreos/flannel:v0.7.1-amd64
-        command: [ "/opt/bin/flanneld", "--ip-masq", "--kube-subnet-mgr" ]
+        command:
+          - /opt/bin/flanneld
+          - --ip-masq
+          - --etcd-endpoints=http://192.168.77.10:12379,http://192.168.77.11:12379,http://192.168.77.12:12379
         securityContext:
           privileged: true
         env:
