@@ -40,8 +40,8 @@ Vagrant.configure("2") do |config|
   config.hostmanager.manage_guest = true
 
   config.vm.provider "virtualbox" do |vb|
-    vb.cpus = 2
-    vb.memory = "2048"
+    vb.cpus = 1
+    vb.memory = "1024"
   end
 
   #
