@@ -19,7 +19,7 @@ spec:
       - ./hyperkube
       - controller-manager
       - --allocate-node-cidrs=true
-      - --cluster-cidr=10.2.0.0/16
+      - --cluster-cidr=10.96.0.0/16
       - --configure-cloud-routes=false
       - --leader-elect=true
       - --kubeconfig=/etc/kubernetes/auth/admin.conf
