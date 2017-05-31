@@ -62,6 +62,7 @@ set -ex
 echo === Installing packages ===
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends \
+  chrony \
   docker.io \
   dnsmasq \
 
