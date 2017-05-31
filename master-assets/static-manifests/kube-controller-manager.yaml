@@ -24,10 +24,10 @@ spec:
       - --leader-elect=true
       - --kubeconfig=/etc/kubernetes/auth/admin.conf
       - --port=20252
-      - --root-ca-file=/etc/kubernetes/pki/ca.crt
+#      - --root-ca-file=/etc/kubernetes/pki/ca.crt
       - --service-account-private-key-file=/etc/kubernetes/pki/sa.key
-      - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
-      - --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
+#      - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
+#      - --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
       - --use-service-account-credentials=true
       - --v=2
       volumeMounts:

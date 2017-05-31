@@ -23,8 +23,8 @@ spec:
           mountPath: /etc/kubernetes/auth
         - name: manifests
           mountPath: /etc/kubernetes/dynamic-manifests
-        - name: pki
-          mountPath: /etc/kubernetes/pki
+#        - name: pki
+#          mountPath: /etc/kubernetes/pki
   containers:
     - name: done
       image: gcr.io/google_containers/pause-amd64:3.0
@@ -35,6 +35,6 @@ spec:
     - name: manifests
       hostPath:
         path: /etc/kubernetes/dynamic-manifests
-    - name: pki
-      hostPath:
-        path: /etc/kubernetes/pki
+#    - name: pki
+#      hostPath:
+#        path: /etc/kubernetes/pki

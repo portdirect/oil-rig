@@ -24,12 +24,12 @@ spec:
       volumeMounts:
         - name: auth
           mountPath: /etc/kubernetes/auth
-        - name: pki
-          mountPath: /etc/kubernetes/pki
+#        - name: pki
+#          mountPath: /etc/kubernetes/pki
   volumes:
     - name: auth
       hostPath:
         path: /etc/kubernetes/auth
-    - name: pki
-      hostPath:
-        path: /etc/kubernetes/pki
+#    - name: pki
+#      hostPath:
+#        path: /etc/kubernetes/pki

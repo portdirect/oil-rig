@@ -36,8 +36,8 @@ spec:
         volumeMounts:
         - name: auth
           mountPath: /etc/kubernetes/auth
-        - name: pki
-          mountPath: /etc/kubernetes/pki
+#        - name: pki
+#          mountPath: /etc/kubernetes/pki
       hostNetwork: true
       tolerations:
       - key: CriticalAddonsOnly
@@ -49,6 +49,6 @@ spec:
       - name: auth
         hostPath:
           path: /etc/kubernetes/auth
-      - name: pki
-        hostPath:
-          path: /etc/kubernetes/pki
+#      - name: pki
+#        hostPath:
+#          path: /etc/kubernetes/pki
