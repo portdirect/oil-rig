@@ -18,7 +18,5 @@ spec:
     tier: pump-control-plane
     component: k8s-etcd
   ports:
-    - name: etcd-client
+    - name: etcd
       port: 2379
-    - name: etcd-server
-      port: 2380
