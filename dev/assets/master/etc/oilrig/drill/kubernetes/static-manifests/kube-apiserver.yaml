@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+  labels:
+    tier: control-plane
+    component: kube-apiserver
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ''
+spec:
+  hostNetwork: true
+  containers:
+    - name: kube-apiserver
+      image: gcr.io/google_containers/hyperkube-amd64:v1.6.2
+      command:
+        - /hyperkube
+        - apiserver
+        - --apiserver-count=3
+        - --advertise-address=$(POD_IP)
+        - --v=3
+        - --authorization-mode=RBAC,AlwaysAllow
+        - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds
+        - --anonymous-auth=false
+#        - --insecure-bind-address=0.0.0.0
+#        - --insecure-port=10080
+        - --insecure-port=0
+        - --bind-address=0.0.0.0
+        - --secure-port=10443
+        - --allow-privileged=true
+        - --etcd-servers=http://192.168.77.10:12379,http://192.168.77.11:12379,http://192.168.77.12:12379
+        - --service-cluster-ip-range=10.96.0.0/16
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+#        - --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+#        - --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+        - --service-account-key-file=/etc/kubernetes/pki/sa.pub
+        - --client-ca-file=/etc/kubernetes/pki/ca.crt
+        - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+        - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+        - --requestheader-client-ca-file=/etc/kubernetes/pki/ca.crt
+      env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+      volumeMounts:
+        - name: pki
+          mountPath: /etc/kubernetes/pki
+  volumes:
+    - name: pki
+      hostPath:
+        path: /etc/kubernetes/pki

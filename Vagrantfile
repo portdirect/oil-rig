@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
   }
 
   drill_worker_config = {
-    count: 4,
+    count: 0,
     name_prefix: "w",
     start_ip: 20,
   }
@@ -60,6 +60,10 @@ apt-get install -y -qq --no-install-recommends \
   chrony \
   docker.io \
   dnsmasq \
+
+export CNI_VERSION=0.5.2
+mkdir -p /opt/cni/bin
+curl -L https://github.com/containernetworking/cni/releases/download/$CNI_VERSION/cni-amd64-$CNI_VERSION.tgz | tar -zxv -C /opt/cni/bin/ \
 
 echo === Setting up DNSMasq ===
 ln -s /vagrant/dev/tmp/dnsmasq-kubernetes /etc/dnsmasq.d/dnsmasq-kubernetes
