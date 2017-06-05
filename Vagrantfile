@@ -61,9 +61,9 @@ apt-get install -y -qq --no-install-recommends \
   docker.io \
   dnsmasq \
 
-export CNI_VERSION=0.5.2
+export CNI_VERSION=v0.5.2
 mkdir -p /opt/cni/bin
-curl -L https://github.com/containernetworking/cni/releases/download/$CNI_VERSION/cni-amd64-$CNI_VERSION.tgz | tar -zxv -C /opt/cni/bin/ \
+curl -sL https://github.com/containernetworking/cni/releases/download/$CNI_VERSION/cni-amd64-$CNI_VERSION.tgz | tar -zxv -C /opt/cni/bin/
 
 echo === Setting up DNSMasq ===
 ln -s /vagrant/dev/tmp/dnsmasq-kubernetes /etc/dnsmasq.d/dnsmasq-kubernetes
