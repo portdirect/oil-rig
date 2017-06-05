@@ -39,11 +39,6 @@ Vagrant.configure("2") do |config|
   config.hostmanager.enabled = true
   config.hostmanager.manage_guest = true
 
-  config.vm.provider "virtualbox" do |vb|
-    vb.cpus = 1
-    vb.memory = "1024"
-  end
-
   #
   # Provisioning
   #
@@ -70,32 +65,38 @@ echo === Setting up DNSMasq ===
 ln -s /vagrant/dev/tmp/dnsmasq-kubernetes /etc/dnsmasq.d/dnsmasq-kubernetes
 systemctl restart dnsmasq
 
-echo === Reconfiguring Docker ===
-ln -s /vagrant/dev/vagrant-assets/docker-daemon.json /etc/docker/daemon.json
+echo === Syncing common assets ===
+rsync -r /vagrant/dev/assets/common/ /
+
 systemctl restart docker
 
-echo === Done ===
+if [ -f /vagrant/pipe.tar ]; then
+  echo === Loading updated pipe image ===
+  docker load -i /vagrant/pipe.tar
+fi
 EOS
 
   drill_masters.each do |m|
     config.vm.define m[:hostname] do |c|
         c.vm.hostname = m[:hostname]
         c.vm.network "private_network", ip: m[:ip]
+
+        c.vm.provider "virtualbox" do |vb|
+          vb.cpus = 2
+          vb.memory = "2048"
+        end
+
         c.vm.provision :shell, privileged: true, inline:<<EOS
 set -ex
 
-if [ -f /vagrant/pipe.tar ]; then
-  docker load -i /vagrant/pipe.tar
-fi
-
-modprobe nf_nat xt_conntrack
-
-mkdir -p /etc/oilrig/drill/
-rsync -r /vagrant/master-assets/ /etc/oilrig/drill/kubernetes/
+echo === Syncing specific assets ===
+rsync -r /vagrant/dev/assets/master/ /
 
 ln -s /vagrant/drill/drill.service /etc/systemd/system/drill.service
 systemctl daemon-reload
 systemctl start drill
+
+echo === Done provisioning master ===
 EOS
     end
   end
@@ -104,21 +105,23 @@ EOS
     config.vm.define w[:hostname] do |c|
         c.vm.hostname = w[:hostname]
         c.vm.network "private_network", ip: w[:ip]
+
+        c.vm.provider "virtualbox" do |vb|
+          vb.cpus = 1
+          vb.memory = "1024"
+        end
+
         c.vm.provision :shell, privileged: true, inline:<<EOS
 set -ex
 
-if [ -f /vagrant/pipe.tar ]; then
-  docker load -i /vagrant/pipe.tar
-fi
-
-modprobe nf_nat xt_conntrack
-
-mkdir -p /etc/oilrig/drill/
-rsync -r /vagrant/worker-assets/ /etc/oilrig/drill/kubernetes/
+echo === Syncing specific assets ===
+rsync -r /vagrant/dev/assets/worker/ /
 
 ln -s /vagrant/drill/drill.service /etc/systemd/system/drill.service
 systemctl daemon-reload
 systemctl start drill
+
+echo === Done provisioning worker ===
 EOS
     end
   end

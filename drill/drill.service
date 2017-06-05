@@ -10,10 +10,12 @@ ExecStart=/usr/bin/docker run --rm \
       --name oilrig-drill \
       --network host \
       --privileged \
+      --volume /etc/oilrig/drill/docker:/etc/docker \
       --volume /etc/oilrig/drill/kubernetes:/etc/kubernetes \
       --volume /var/lib/docker-oilrig:/var/lib/docker:rshared \
-      --volume /var/log/oilrig/supervisor:/var/log/oilrig/supervisor:rw \
+      --volume /var/log/oilrig/drill/supervisor:/var/log/oilrig/drill/supervisor:rw \
       --volume /var/oilrig:/var/oilrig:rshared \
+      --volume /opt/cni:/opt/cni \
       --volume /:/rootfs:rshared \
       docker.io/oilrig/pipe:latest
 ExecStop=/bin/bash -c "/usr/bin/docker rm -fv oilrig-drill || true"
