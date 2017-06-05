@@ -60,6 +60,7 @@ apt-get install -y -qq --no-install-recommends \
   chrony \
   docker.io \
   dnsmasq \
+  socat \
 
 export CNI_VERSION=v0.5.2
 mkdir -p /opt/cni/bin

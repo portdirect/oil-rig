@@ -22,6 +22,10 @@ RUN set -x \
     && apt-get install  --no-install-recommends -y \
         vim
 
+RUN set -x \
+    && apt-get install  --no-install-recommends -y \
+        socat
+
 ADD ./assets /
 
 ENTRYPOINT [ "supervisord", "-c", "/etc/oilrig/supvervisord.conf" ]
