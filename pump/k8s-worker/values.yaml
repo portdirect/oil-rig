@@ -1,0 +1,5 @@
+tenant: nb001
+cluster: c001
+
+network:
+  cluster_dns: 10.90.0.10

@@ -1,0 +1,80 @@
+{{- $tenant := .Values.tenant -}}
+{{- $cluster := .Values.cluster -}}
+
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: k8s-kubelet
+  labels:
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
+    tier: pump-worker
+    component: kubelet
+spec:
+  template:
+    metadata:
+      labels:
+        tenant: {{ $tenant }}
+        cluster: {{ $cluster }}
+        tier: pump-worker
+        component: kubelet
+    spec:
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubelet-tenant: {{ $tenant }}
+        kubelet-cluster: {{ $cluster }}
+      containers:
+        - name: kubelet
+          image: gcr.io/google_containers/hyperkube-amd64:v1.6.2
+          securityContext:
+            privileged: true
+          command:
+            - /hyperkube
+            - kubelet
+            - --allow-privileged=true
+            - --cluster-dns={{ .Values.network.cluster_dns }}
+            - --cni-bin-dir=/opt/cni/bin
+            - --cni-conf-dir=/etc/cni/net.d
+            - --hostname-override=$(NODE_NAME)
+            - --kubeconfig=/etc/kubernetes/auth/client.conf
+            - --require-kubeconfig
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /etc/kubernetes/auth
+            - name: var
+              mountPath: /var
+            - name: run
+              mountPath: /run
+            - name: cni-bin
+              mountPath: /opt/cni/bin
+              readOnly: true
+            - name: cni-conf
+              mountPath: /etc/cni/net.d
+            - name: pki-certs
+              mountPath: /etc/kubernetes/pki/certs/ca.crt
+              subPath: ca.crt
+      volumes:
+        - name: kubeconfig
+          configMap:
+            name: k8s-kubeconfig
+        - name: pki-certs
+          configMap:
+            name: k8s-certs
+        - name: var
+          hostPath:
+            path: /rootfs/var
+        - name: run
+          hostPath:
+            path: /rootfs/run
+        - name: cni-bin
+          hostPath:
+            path: /rootfs/opt/cni/bin
+        - name: cni-conf
+          hostPath:
+            path: /rootfs/etc/oilrig/pump/{{ $tenant }}/{{ $cluster }}/cni
