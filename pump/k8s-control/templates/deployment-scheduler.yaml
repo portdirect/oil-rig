@@ -1,0 +1,62 @@
+{{- $tenant := .Values.tenant -}}
+{{- $cluster := .Values.cluster -}}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: k8s-scheduler
+  labels:
+    tenant-{{ $tenant }}: control-plane
+    cluster-{{ $cluster }}: control-plane
+    tier: pump-control-plane
+    component: k8s-scheduler
+spec:
+  replicas: {{ .Values.scheduler.replicas }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        tenant-{{ $tenant }}: control-plane
+        cluster-{{ $cluster }}: control-plane
+        tier: pump-control-plane
+        component: k8s-scheduler
+    spec:
+      nodeSelector:
+        tenant-{{ $tenant }}: control-plane
+        cluster-{{ $cluster }}: control-plane
+      containers:
+        - name: kube-scheduler
+          image: gcr.io/google_containers/hyperkube-amd64:v1.6.2
+          command:
+            - ./hyperkube
+            - scheduler
+            - --leader-elect=true
+            - --kubeconfig=/etc/kubernetes/auth/client.conf
+            - --v=2
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /etc/kubernetes/auth
+            - name: pki-certs
+              mountPath: /etc/kubernetes/pki/certs/ca.crt
+              subPath: ca.crt
+            - name: pki-certs
+              mountPath: /etc/kubernetes/pki/certs/client.crt
+              subPath: scheduler.crt
+            - name: pki-key-scheduler
+              mountPath: /etc/kubernetes/pki/keys/priv/client.key
+              subPath: scheduler.key
+      volumes:
+        - name: kubeconfig
+          configMap:
+            name: k8s-kubeconfig
+        - name: pki-certs
+          configMap:
+            name: k8s-certs
+        - name: pki-key-scheduler
+          secret:
+            secretName: k8s-key-scheduler

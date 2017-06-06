@@ -62,6 +62,11 @@ spec:
               mountPath: /etc/kubernetes/pki/keys/priv
             - name: pki-pub
               mountPath: /etc/kubernetes/pki/keys/pub
+          ports:
+            - name: http
+              containerPort: 80
+            - name: https
+              containerPort: 443
       volumes:
         - name: pki-certs
           configMap:
