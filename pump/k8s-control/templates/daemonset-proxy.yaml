@@ -1,0 +1,62 @@
+{{- $tenant := .Values.tenant -}}
+{{- $cluster := .Values.cluster -}}
+
+---
+apiVersion: "extensions/v1beta1"
+kind: DaemonSet
+metadata:
+  name: kube-proxy
+  labels:
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
+    tier: pump
+    component: k8s-proxy
+spec:
+  template:
+    metadata:
+      labels:
+        tier: node
+        component: k8s-proxy
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        tenant-{{ $tenant }}: "true"
+        cluster-{{ $cluster }}: "true"
+      containers:
+      - name: kube-proxy
+        image: gcr.io/google_containers/hyperkube-amd64:v1.6.2
+        command:
+        - /hyperkube
+        - proxy
+        - --cluster-cidr={{ .Values.network.pod_cidr }}
+        - --hostname-override=$(NODE_NAME)
+        - --kubeconfig=/etc/kubernetes/auth/client.conf
+        - --proxy-mode=iptables
+        - --master=http://{{ .Values.network.kube_ip }}
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: kubeconfig
+            mountPath: /etc/kubernetes/auth
+          - name: sys
+            mountPath: /sys
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+      volumes:
+        - name: kubeconfig
+          configMap:
+            name: k8s-kubeconfig
+        - name: sys
+          hostPath:
+            path: /rootfs/sys

@@ -17,5 +17,6 @@ etcd:
   service_name: k8s-etcd
 
 network:
+  kube_ip: 10.90.0.1
   service_cidr: 10.90.0.0/16
   pod_cidr: 10.91.0.0/16
