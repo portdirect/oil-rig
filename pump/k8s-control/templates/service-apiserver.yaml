@@ -1,0 +1,22 @@
+{{- $tenant := .Values.tenant -}}
+{{- $cluster := .Values.cluster -}}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s
+  labels:
+    tenant-{{ $tenant }}: control-plane
+    cluster-{{ $cluster }}: control-plane
+    tier: pump-control-plane
+    component: k8s-apiserver
+spec:
+  selector:
+    tenant-{{ $tenant }}: control-plane
+    cluster-{{ $cluster }}: control-plane
+    tier: pump-control-plane
+    component: k8s-apiserver
+  ports:
+    - name: https
+      port: 443
