@@ -7,8 +7,8 @@ kind: Deployment
 metadata:
   name: k8s-apiserver
   labels:
-    tenant-{{ $tenant }}: control-plane
-    cluster-{{ $cluster }}: control-plane
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
     tier: pump-control-plane
     component: k8s-apiserver
 spec:
@@ -21,14 +21,14 @@ spec:
   template:
     metadata:
       labels:
-        tenant-{{ $tenant }}: control-plane
-        cluster-{{ $cluster }}: control-plane
+        tenant: {{ $tenant }}
+        cluster: {{ $cluster }}
         tier: pump-control-plane
         component: k8s-apiserver
     spec:
       nodeSelector:
-        tenant-{{ $tenant }}: control-plane
-        cluster-{{ $cluster }}: control-plane
+        cp-tenant-{{ $tenant }}: "true"
+        cp-cluster-{{ $cluster }}: "true"
       containers:
         - name: kube-apiserver
           image: gcr.io/google_containers/hyperkube-amd64:v1.6.2

@@ -5,18 +5,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.etcd.service_name }}
+  name: k8s-np
   labels:
     tenant: {{ $tenant }}
     cluster: {{ $cluster }}
     tier: pump-control-plane
-    component: k8s-etcd
+    component: k8s-apiserver
 spec:
   selector:
     tenant: {{ $tenant }}
     cluster: {{ $cluster }}
     tier: pump-control-plane
-    component: k8s-etcd
+    component: k8s-apiserver
+  type: NodePort
   ports:
-    - name: etcd
-      port: 2379
+    - name: https
+      port: 443
+      nodePort: 30443
+    - name: http
+      port: 80
+      nodePort: 30080

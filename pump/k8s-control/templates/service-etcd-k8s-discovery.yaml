@@ -7,8 +7,8 @@ kind: Service
 metadata:
   name: {{ .Values.etcd.service_name }}-discovery
   labels:
-    tenant-{{ $tenant }}: control-plane
-    cluster-{{ $cluster }}: control-plane
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
     tier: pump-control-plane
     component: k8s-etcd
   annotations:
@@ -16,8 +16,8 @@ metadata:
 spec:
   clusterIP: None
   selector:
-    tenant-{{ $tenant }}: control-plane
-    cluster-{{ $cluster }}: control-plane
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
     tier: pump-control-plane
     component: k8s-etcd
   ports:

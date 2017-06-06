@@ -5,49 +5,48 @@
 {{- $replicas := .Values.etcd.replicas -}}
 
 ---
-apiVersion: apps/v1beta1
-kind: StatefulSet
+apiVersion: "extensions/v1beta1"
+kind: DaemonSet
 metadata:
   name: {{ $service_name }}
   labels:
-    tenant-{{ $tenant }}: control-plane
-    cluster-{{ $cluster }}: control-plane
+    tenant: {{ $tenant }}
+    cluster: {{ $cluster }}
     tier: pump-control-plane
     component: k8s-etcd
 spec:
-  serviceName: {{ $service_name }}-discovery
-  replicas: {{ .Values.etcd.replicas }}
   template:
     metadata:
       labels:
-        tenant-{{ $tenant }}: control-plane
-        cluster-{{ $cluster }}: control-plane
+        tenant: {{ $tenant }}
+        cluster: {{ $cluster }}
         tier: pump-control-plane
         component: k8s-etcd
     spec:
       nodeSelector:
-        tenant-{{ $tenant }}: control-plane
-        cluster-{{ $cluster }}: control-plane
+        cp-tenant-{{ $tenant }}: "true"
+        cp-cluster-{{ $cluster }}: "true"
       containers:
         - name: etcd
           image: {{ .Values.etcd.image }}
           imagePullPolicy: {{ .Values.etcd.image_pull_policy }}
           env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: ETCD_NAME
               valueFrom:
                 fieldRef:
-                  fieldPath: metadata.name
+                  fieldPath: spec.nodeName
             - name: ETCD_ADVERTISE_CLIENT_URLS
-              value: http://$(ETCD_NAME):2379
+              value: http://{{ .Values.etcd.service_name }}:2379
             - name: ETCD_INITIAL_ADVERTISE_PEER_URLS
-              value: http://$(ETCD_NAME):2380
+              value: http://$(POD_IP):2380
             - name: ETCD_DATA_DIR
               value: /var/oilrig/pump/etcd/k8s
-            - name: ETCD_INITIAL_CLUSTER
-              value: {{ range $i, $e := until ($replicas | int) -}}
-{{- if $i -}},{{- end -}}
-{{- print "k8s-etcd-" $i "=http://k8s-etcd-" $i "." $service ":2380" -}}
-{{- end }}
+            - name: ETCD_DISCOVERY_SRV
+              value: {{ .Values.etcd.service_name }}-discovery
             - name: ETCD_INITIAL_CLUSTER_TOKEN
               value: "{{ $tenant }}-{{ $cluster }}-k8s-etcd"
             - name: ETCD_LISTEN_CLIENT_URLS
