@@ -7,14 +7,14 @@ kind: Service
 metadata:
   name: {{ .Values.etcd.service_name }}
   labels:
-    tenant: {{ $tenant }}
-    cluster: {{ $cluster }}
+    tenant-{{ $tenant }}: control-plane
+    cluster-{{ $cluster }}: control-plane
     tier: pump-control-plane
     component: k8s-etcd
 spec:
   selector:
-    tenant: {{ $tenant }}
-    cluster: {{ $cluster }}
+    tenant-{{ $tenant }}: control-plane
+    cluster-{{ $cluster }}: control-plane
     tier: pump-control-plane
     component: k8s-etcd
   ports:

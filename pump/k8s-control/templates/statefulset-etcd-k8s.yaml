@@ -10,8 +10,8 @@ kind: StatefulSet
 metadata:
   name: {{ $service_name }}
   labels:
-    tenant: {{ $tenant }}
-    cluster: {{ $cluster }}
+    tenant-{{ $tenant }}: control-plane
+    cluster-{{ $cluster }}: control-plane
     tier: pump-control-plane
     component: k8s-etcd
 spec:
@@ -20,29 +20,29 @@ spec:
   template:
     metadata:
       labels:
-        tenant: {{ $tenant }}
-        cluster: {{ $cluster }}
+        tenant-{{ $tenant }}: control-plane
+        cluster-{{ $cluster }}: control-plane
         tier: pump-control-plane
         component: k8s-etcd
     spec:
       nodeSelector:
-        tenant: {{ $tenant }}
-        cluster: {{ $cluster }}
-        nodeType: k8s-control-plane
+        tenant-{{ $tenant }}: control-plane
+        cluster-{{ $cluster }}: control-plane
       containers:
         - name: etcd
           image: {{ .Values.etcd.image }}
           imagePullPolicy: {{ .Values.etcd.image_pull_policy }}
           env:
+            - name: ETCD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: ETCD_ADVERTISE_CLIENT_URLS
-              value: http://{{ $service_name }}.{{ .Release.Namespace }}.svc.cluster.local:2379
+              value: http://$(ETCD_NAME):2379
+            - name: ETCD_INITIAL_ADVERTISE_PEER_URLS
+              value: http://$(ETCD_NAME):2380
             - name: ETCD_DATA_DIR
               value: /var/oilrig/pump/etcd/k8s
-            - name: ETCD_INITIAL_ADVERTISE_PEER_URLS
-              value: {{ range $i, $e := until ($replicas | int) -}}
-{{- if $i -}},{{- end -}}
-{{- print "k8s-etcd-" $i "=http://k8s-etcd-" $i "." $service ":2380" -}}
-{{- end }}
             - name: ETCD_INITIAL_CLUSTER
               value: {{ range $i, $e := until ($replicas | int) -}}
 {{- if $i -}},{{- end -}}
@@ -54,10 +54,6 @@ spec:
               value: http://0.0.0.0:2379
             - name: ETCD_LISTEN_PEER_URLS
               value: http://0.0.0.0:2380
-            - name: ETCD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
           ports:
             - name: client
               containerPort: 2379
