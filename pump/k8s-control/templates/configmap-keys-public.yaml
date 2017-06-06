@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-keys-public
+data:
+{{ (.Files.Glob "files/pki/keys/pub/*").AsConfig | indent 2 }}

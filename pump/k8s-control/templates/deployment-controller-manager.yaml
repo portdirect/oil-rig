@@ -1,0 +1,75 @@
+{{- $tenant := .Values.tenant -}}
+{{- $cluster := .Values.cluster -}}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: k8s-controller-manager
+  labels:
+    tenant-{{ $tenant }}: control-plane
+    cluster-{{ $cluster }}: control-plane
+    tier: pump-control-plane
+    component: k8s-controller-manager
+spec:
+  replicas: {{ .Values.controller_manager.replicas }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        tenant-{{ $tenant }}: control-plane
+        cluster-{{ $cluster }}: control-plane
+        tier: pump-control-plane
+        component: k8s-controller-manager
+    spec:
+      nodeSelector:
+        tenant-{{ $tenant }}: control-plane
+        cluster-{{ $cluster }}: control-plane
+      containers:
+        - name: kube-controller-manager
+          image: gcr.io/google_containers/hyperkube-amd64:v1.6.2
+          command:
+            - ./hyperkube
+            - controller-manager
+            - --allocate-node-cidrs=true
+            - --cluster-cidr={{ .Values.network.pod_cidr }}
+            - --configure-cloud-routes=false
+            - --leader-elect=true
+            - --kubeconfig=/etc/kubernetes/auth/client.conf
+            - --root-ca-file=/etc/kubernetes/pki/certs/ca.crt
+            - --service-account-private-key-file=/etc/kubernetes/pki/keys/priv/sa.key
+            - --service-cluster-ip-range={{ .Values.network.service_cidr }}
+#            - --use-service-account-credentials=true
+            - --v=3
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /etc/kubernetes/auth
+            - name: pki-certs
+              mountPath: /etc/kubernetes/pki/certs/ca.crt
+              subPath: ca.crt
+            - name: pki-certs
+              mountPath: /etc/kubernetes/pki/certs/client.crt
+              subPath: controller-manager.crt
+            - name: pki-key-cm
+              mountPath: /etc/kubernetes/pki/keys/priv/client.key
+              subPath: controller-manager.key
+            - name: pki-key-sa
+              mountPath: /etc/kubernetes/pki/keys/priv/sa.key
+              subPath: sa.key
+      volumes:
+        - name: kubeconfig
+          configMap:
+            name: k8s-kubeconfig
+        - name: pki-certs
+          configMap:
+            name: k8s-certs
+        - name: pki-key-cm
+          secret:
+            secretName: k8s-key-controller-manager
+        - name: pki-key-sa
+          secret:
+            secretName: k8s-key-sa

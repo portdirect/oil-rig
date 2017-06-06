@@ -41,7 +41,8 @@ spec:
             - --authorization-mode=RBAC,AlwaysAllow
             - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds
             - --anonymous-auth=false
-            - --insecure-port=0
+            - --insecure-port=80
+            - --insecure-bind-address=0.0.0.0
             - --bind-address=0.0.0.0
             - --secure-port=443
             - --allow-privileged=true
@@ -59,15 +60,15 @@ spec:
               mountPath: /etc/kubernetes/pki/certs
             - name: pki-apiserver
               mountPath: /etc/kubernetes/pki/keys/priv
-            - name: pki-sa-pub
+            - name: pki-pub
               mountPath: /etc/kubernetes/pki/keys/pub
       volumes:
         - name: pki-certs
           configMap:
             name: k8s-certs
-        - name: pki-sa-pub
+        - name: pki-pub
           configMap:
-            name: k8s-sa-pub
+            name: k8s-keys-public
         - name: pki-apiserver
           secret:
             secretName: k8s-key-apiserver
