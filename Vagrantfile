@@ -57,6 +57,7 @@ set -ex
 echo === Installing packages ===
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends \
+  bridge-utils \
   chrony \
   docker.io \
   dnsmasq \
@@ -72,6 +73,9 @@ systemctl restart dnsmasq
 
 echo === Syncing common assets ===
 rsync -r /vagrant/dev/assets/common/ /
+
+echo '=== Setting up child docker bridge (docker1) ==='
+ifup -v docker1
 
 systemctl restart docker
 
