@@ -1,4 +1,5 @@
 {
   "bridge": "docker1",
-  "dns": ["172.16.0.1"]
+  "dns": ["172.16.0.1"],
+  "storage-driver": "overlay2"
 }
