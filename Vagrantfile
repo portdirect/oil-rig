@@ -68,7 +68,7 @@ mkdir -p /opt/cni/bin
 curl -sL https://github.com/containernetworking/cni/releases/download/$CNI_VERSION/cni-amd64-$CNI_VERSION.tgz | tar -zxv -C /opt/cni/bin/
 
 echo === Setting up DNSMasq ===
-ln -s /vagrant/dev/tmp/dnsmasq-kubernetes /etc/dnsmasq.d/dnsmasq-kubernetes
+cp /vagrant/dev/tmp/dnsmasq-kubernetes /etc/dnsmasq.d/dnsmasq-kubernetes
 systemctl restart dnsmasq
 
 echo === Syncing common assets ===
@@ -101,8 +101,9 @@ set -ex
 echo === Syncing specific assets ===
 rsync -r /vagrant/dev/assets/master/ /
 
-ln -s /vagrant/drill/drill.service /etc/systemd/system/drill.service
+cp /vagrant/drill/drill.service /etc/systemd/system/drill.service
 systemctl daemon-reload
+systemctl enable drill
 systemctl start drill
 
 echo === Done provisioning master ===
@@ -126,8 +127,9 @@ set -ex
 echo === Syncing specific assets ===
 rsync -r /vagrant/dev/assets/worker/ /
 
-ln -s /vagrant/drill/drill.service /etc/systemd/system/drill.service
+cp /vagrant/drill/drill.service /etc/systemd/system/drill.service
 systemctl daemon-reload
+systemctl enable drill
 systemctl start drill
 
 echo === Done provisioning worker ===
