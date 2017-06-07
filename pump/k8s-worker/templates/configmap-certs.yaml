@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-certs-kubelet
+data:
+{{ (.Files.Glob "files/certs/*").AsConfig | indent 2 }}

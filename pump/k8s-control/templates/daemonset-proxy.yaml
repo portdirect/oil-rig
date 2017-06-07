@@ -45,6 +45,15 @@ spec:
         volumeMounts:
           - name: kubeconfig
             mountPath: /etc/kubernetes/auth
+          - name: pki-certs
+            mountPath: /etc/kubernetes/pki/certs/ca.crt
+            subPath: ca.crt
+          - name: pki-certs
+            mountPath: /etc/kubernetes/pki/certs/client.crt
+            subPath: proxy.crt
+          - name: pki-key-proxy
+            mountPath: /etc/kubernetes/pki/keys/priv/client.key
+            subPath: proxy.key
           - name: sys
             mountPath: /sys
       tolerations:
@@ -57,6 +66,13 @@ spec:
         - name: kubeconfig
           configMap:
             name: k8s-kubeconfig
+        - name: pki-certs
+          configMap:
+            name: k8s-certs
+        - name: pki-key-proxy
+          secret:
+            secretName: k8s-key-proxy
+        # XXX Is this needed?
         - name: sys
           hostPath:
             path: /rootfs/sys

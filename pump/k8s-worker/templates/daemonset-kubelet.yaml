@@ -59,13 +59,22 @@ spec:
             - name: pki-certs
               mountPath: /etc/kubernetes/pki/certs/ca.crt
               subPath: ca.crt
+            - name: pki-certs
+              mountPath: /etc/kubernetes/pki/certs/client.crt
+              subPath: kubelet.crt
+            - name: pki-key
+              mountPath: /etc/kubernetes/pki/keys/priv/client.key
+              subPath: kubelet.key
       volumes:
         - name: kubeconfig
           configMap:
-            name: k8s-kubeconfig
+            name: k8s-kubeconfig-kubelet
         - name: pki-certs
           configMap:
-            name: k8s-certs
+            name: k8s-certs-kubelet
+        - name: pki-key
+          secret:
+            secretName: k8s-key-kubelet
         - name: var
           hostPath:
             path: /rootfs/var
