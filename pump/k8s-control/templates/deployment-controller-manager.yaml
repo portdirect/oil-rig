@@ -43,20 +43,21 @@ spec:
             - --root-ca-file=/etc/kubernetes/pki/certs/ca.crt
             - --service-account-private-key-file=/etc/kubernetes/pki/keys/priv/sa.key
             - --service-cluster-ip-range={{ .Values.network.service_cidr }}
-#            - --use-service-account-credentials=true
-            - --v=3
+            - --cluster-signing-cert-file=/etc/kubernetes/pki/certs/ca.crt
+            - --cluster-signing-key-file=/etc/kubernetes/pki/keys/priv/ca.key
+            - --use-service-account-credentials=true
+            - --v=5
           volumeMounts:
             - name: kubeconfig
               mountPath: /etc/kubernetes/auth
             - name: pki-certs
-              mountPath: /etc/kubernetes/pki/certs/ca.crt
-              subPath: ca.crt
-            - name: pki-certs
-              mountPath: /etc/kubernetes/pki/certs/client.crt
-              subPath: controller-manager.crt
-            - name: pki-key-cm
+              mountPath: /etc/kubernetes/pki/certs
+            - name: pki-key-client
               mountPath: /etc/kubernetes/pki/keys/priv/client.key
-              subPath: controller-manager.key
+              subPath: client.key
+            - name: pki-key-ca
+              mountPath: /etc/kubernetes/pki/keys/priv/ca.key
+              subPath: ca.key
             - name: pki-key-sa
               mountPath: /etc/kubernetes/pki/keys/priv/sa.key
               subPath: sa.key
@@ -67,9 +68,12 @@ spec:
         - name: pki-certs
           configMap:
             name: k8s-certs
-        - name: pki-key-cm
+        - name: pki-key-client
           secret:
-            secretName: k8s-key-controller-manager
+            secretName: k8s-key-client
+        - name: pki-key-ca
+          secret:
+            secretName: k8s-key-ca
         - name: pki-key-sa
           secret:
             secretName: k8s-key-sa

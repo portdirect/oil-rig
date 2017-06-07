@@ -42,14 +42,10 @@ spec:
             - name: kubeconfig
               mountPath: /etc/kubernetes/auth
             - name: pki-certs
-              mountPath: /etc/kubernetes/pki/certs/ca.crt
-              subPath: ca.crt
-            - name: pki-certs
-              mountPath: /etc/kubernetes/pki/certs/client.crt
-              subPath: scheduler.crt
-            - name: pki-key-scheduler
+              mountPath: /etc/kubernetes/pki/certs
+            - name: pki-key-client
               mountPath: /etc/kubernetes/pki/keys/priv/client.key
-              subPath: scheduler.key
+              subPath: client.key
       volumes:
         - name: kubeconfig
           configMap:
@@ -57,6 +53,6 @@ spec:
         - name: pki-certs
           configMap:
             name: k8s-certs
-        - name: pki-key-scheduler
+        - name: pki-key-client
           secret:
-            secretName: k8s-key-scheduler
+            secretName: k8s-key-client

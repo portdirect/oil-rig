@@ -37,7 +37,7 @@ spec:
             - apiserver
             - --apiserver-count=3
 #            - --advertise-address=$(POD_IP)
-            - --v=3
+            - --v=5
             - --authorization-mode=RBAC,AlwaysAllow
             - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds
             - --anonymous-auth=false
@@ -48,8 +48,7 @@ spec:
             - --allow-privileged=true
             - --etcd-servers=http://k8s-etcd:2379
             - --service-cluster-ip-range={{ .Values.network.service_cidr }}
-
-#            - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+            - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
             - --service-account-key-file=/etc/kubernetes/pki/keys/pub/sa.pub
             - --client-ca-file=/etc/kubernetes/pki/certs/ca.crt
             - --tls-cert-file=/etc/kubernetes/pki/certs/apiserver.crt

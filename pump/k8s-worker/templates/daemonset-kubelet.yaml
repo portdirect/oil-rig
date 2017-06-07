@@ -37,6 +37,7 @@ spec:
             - --cni-bin-dir=/opt/cni/bin
             - --cni-conf-dir=/etc/cni/net.d
             - --hostname-override=$(NODE_NAME)
+            - --node-labels=beta.kubernetes.io/arch=amd64
             - --kubeconfig=/etc/kubernetes/auth/client.conf
             - --require-kubeconfig
           env:
@@ -57,14 +58,9 @@ spec:
             - name: cni-conf
               mountPath: /etc/cni/net.d
             - name: pki-certs
-              mountPath: /etc/kubernetes/pki/certs/ca.crt
-              subPath: ca.crt
-            - name: pki-certs
-              mountPath: /etc/kubernetes/pki/certs/client.crt
-              subPath: kubelet.crt
+              mountPath: /etc/kubernetes/pki/certs
             - name: pki-key
-              mountPath: /etc/kubernetes/pki/keys/priv/client.key
-              subPath: kubelet.key
+              mountPath: /etc/kubernetes/pki/keys/priv
       volumes:
         - name: kubeconfig
           configMap:

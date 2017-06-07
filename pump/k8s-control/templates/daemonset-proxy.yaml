@@ -46,14 +46,10 @@ spec:
           - name: kubeconfig
             mountPath: /etc/kubernetes/auth
           - name: pki-certs
-            mountPath: /etc/kubernetes/pki/certs/ca.crt
-            subPath: ca.crt
-          - name: pki-certs
-            mountPath: /etc/kubernetes/pki/certs/client.crt
-            subPath: proxy.crt
-          - name: pki-key-proxy
+            mountPath: /etc/kubernetes/pki/certs
+          - name: pki-key-client
             mountPath: /etc/kubernetes/pki/keys/priv/client.key
-            subPath: proxy.key
+            subPath: client.key
           - name: sys
             mountPath: /sys
       tolerations:
@@ -69,9 +65,9 @@ spec:
         - name: pki-certs
           configMap:
             name: k8s-certs
-        - name: pki-key-proxy
+        - name: pki-key-client
           secret:
-            secretName: k8s-key-proxy
+            secretName: k8s-key-client
         # XXX Is this needed?
         - name: sys
           hostPath:
